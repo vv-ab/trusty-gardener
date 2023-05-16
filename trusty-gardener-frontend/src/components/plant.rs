@@ -9,7 +9,7 @@ const WATERING_CAN_STATIC: &'static str = "wateringcan.png";
 const WATERING_CAN_ANIMATED: &'static str = "wateringcan3.gif";
 
 #[component]
-pub fn PlantView(cx: Scope, plant: ReadSignal<Option<Plant>>) -> impl IntoView {
+pub fn PlantView(cx: Scope, plant: ReadSignal<Option<Plant>>, plant_editor_visible: WriteSignal<bool>, plant_editor_plant: WriteSignal<Option<Plant>>) -> impl IntoView {
 
     let (watering_icon, set_watering_icon) = create_signal(cx, WATERING_CAN_STATIC);
 
@@ -55,7 +55,19 @@ pub fn PlantView(cx: Scope, plant: ReadSignal<Option<Plant>>) -> impl IntoView {
                     view!{cx,
                         <div class="columns">
                             <div class="column is-two-thirds">
-                                <div class="subtitle is-3">{"Name: "}{plant.name}</div>
+                                <div class="subtitle is-3">
+                                    <div class="is-flex is-flex-direction-row is-justify-content-space-between">
+                                        <span>{"Name: "}{&plant.name}</span>
+                                        <span>
+                                            <button class="button is-medium" on:click=move |_| {
+                                                plant_editor_visible.set(true);
+                                                plant_editor_plant.set(Some(Clone::clone(&plant)));
+                                            }>
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+                                        </span>
+                                    </div>
+                                </div>
                                 <div class="tile is-ancestor">
                                     <div class="tile is-parent">
                                         <article class="tile is-child box">

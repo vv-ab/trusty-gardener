@@ -5,7 +5,7 @@ use log::info;
 use crate::api;
 use std::str::FromStr;
 use trusty_gardener_model::Plant;
-use crate::components::{Footer, PlantView};
+use crate::components::{Footer, PlantView, PlantEditor};
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
@@ -22,49 +22,12 @@ pub fn App(cx: Scope) -> impl IntoView {
         }
     });
 
-    let (show_create_plant_modal, set_show_create_plant_modal) = create_signal(cx, false);
-    let show_create_plant_modal_handler = move |_: MouseEvent| {
-        set_show_create_plant_modal.set(true);
-    };
-    let (create_plant_modal_name, set_plant_modal_name) = create_signal(cx, String::new());
-
-    let create_plant_modal_name_input: NodeRef<Input> = create_node_ref(cx);
+    let plant_editor_visible: RwSignal<bool> = create_rw_signal(cx, false);
+    let plant_editor_plant: RwSignal<Option<Plant>> = create_rw_signal(cx, None);
 
     view! { cx,
         <div class="container hero is-fluid is-fullheight">
-            <div class={move || if show_create_plant_modal.get() {"modal is-active"} else {"modal"}}>
-                <div class="modal-background"></div>
-                <div class="modal-card">
-                    <header class="modal-card-head">
-                        <p class="modal-card-title">{"Create new plant"}</p>
-                    </header>
-                    <section class="modal-card-body">
-                        <div class="field">
-                            <label class="label">{"Name:"}</label>
-                            <div class="control">
-                                <input node_ref=create_plant_modal_name_input class="input" type="text" placeholder={"e.g Silver Birch"}/>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">{"Species:"}</label>
-                            <div class="control">
-                                <input class="input" type="text" placeholder={"e.g betula pendula"}/>
-                            </div>
-                        </div>
-                    </section>
-                    <footer class="modal-card-foot">
-                        <button class="button is-success" on:click=move |_| {
-                            set_show_create_plant_modal.set(false);
-                            let name = create_plant_modal_name_input
-                                .get()
-                                .expect("name input element")
-                                .value();
-                            info!("{}", name);
-                        }>{"Create"}</button>
-                        <button class="button" on:click=move |_| set_show_create_plant_modal.set(false)>{"Cancel"}</button>
-                    </footer>
-                </div>
-            </div>
+            <PlantEditor visible=plant_editor_visible plant=plant_editor_plant></PlantEditor>
             <div class="title is-1">
                 <h1 id={ "projectName" }>
                     <span class={ "blackName" }>{ "T" }</span>
@@ -93,7 +56,10 @@ pub fn App(cx: Scope) -> impl IntoView {
                                     }
                                </select>
                             </div>
-                            <button class="button is-medium" on:click=show_create_plant_modal_handler>
+                            <button class="button is-medium" on:click=move |_| {
+                                plant_editor_visible.set(true);
+                                plant_editor_plant.set(None);
+                            }>
                                     <i class="fa-solid fa-plus"></i>
                             </button>
                             <button class="button is-medium subtitle">
@@ -104,7 +70,9 @@ pub fn App(cx: Scope) -> impl IntoView {
                 </div>
             </div>
             {move || {
-                view!{cx, <div><PlantView plant={selected_plant}></PlantView></div>}
+                let plant_editor_visible = plant_editor_visible.write_only();
+                let plant_editor_plant = plant_editor_plant.write_only();
+                view!{cx, <div><PlantView plant={selected_plant} plant_editor_visible=plant_editor_visible plant_editor_plant=plant_editor_plant></PlantView></div>}
             }}
             <Footer></Footer>
         </div>
