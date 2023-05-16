@@ -1,0 +1,8 @@
+[package]
+name = "yew_playground_model"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+chrono = { version = "0.4.24", features = ["serde"] }
+serde = "1.0.162"
