@@ -1,11 +1,9 @@
-[target.'cfg(all(target_arch = "arm", target_os = "none"))']
-runner = "probe-run --chip STM32F446re"
-
-[target.thumbv7em-none-eabihf]
-rustflags = ["-C", "link-arg=-Tlink.x"]
-
 [build]
-target = "thumbv7em-none-eabihf"
+rustflags = ["-C", "target-feature=+crt-static"]
+target = "armv7-unknown-linux-gnueabihf"
+
+[target.armv7-unknown-linux-gnueabihf]
+linker = "arm-linux-gnueabihf-gcc"
 
 [profile.release]
 opt-level = 'z'
